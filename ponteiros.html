@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material de Estudo - Ponteiros em C</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+        }
+
+        header {
+            background-color: #004080;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        nav {
+            background-color: #0066cc;
+            text-align: center;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: yellow;
+        }
+
+        section {
+            background-color: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 8px gray;
+        }
+
+        h3 {
+            color: #004080;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        form {
+            background-color: #e6f2ff;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        input[type="radio"] {
+            width: auto;
+        }
+
+        input[type="submit"] {
+            background-color: #004080;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00264d;
+        }
+
+        footer {
+            background-color: #004080;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+        <h1>Material de Estudo Digital</h1>
+        <h2>Ponteiros em Linguagem C</h2>
+    </header>
+
+    <nav>
+        <a href="#conceito">Conceito</a>
+        <a href="#exemplo">Exemplo</a>
+        <a href="#tabela">Resumo</a>
+        <a href="#avaliacao">Avaliação</a>
+        <a href="https://www.w3schools.com/c/" target="_blank">Estudar mais</a>
+    </nav>
+
+    <section id="conceito">
+        <h3>O que são Ponteiros?</h3>
+        <p>
+            Ponteiros são variáveis que armazenam o <strong>endereço de memória</strong> 
+            de outra variável.
+        </p>
+
+        <p>
+            Eles são declarados utilizando o símbolo <b>*</b>.
+        </p>
+
+        <ul>
+            <li>Permitem manipular memória</li>
+            <li>São muito usados com funções</li>
+            <li>São importantes para vetores e matrizes</li>
+        </ul>
+    </section>
+
+    <section id="exemplo">
+        <h3>Exemplo Prático</h3>
+
+        <p>Veja um exemplo simples:</p>
+
+        <img src="ponteiro.png" width="300">
+
+        <p>
+            No exemplo acima, a variável <i>p</i> guarda o endereço da variável <i>x</i>.
+        </p>
+    </section>
+
+    <section id="tabela">
+        <h3>Tabela Resumo</h3>
+
+        <table>
+            <tr>
+                <th>Símbolo</th>
+                <th>Função</th>
+            </tr>
+            <tr>
+                <td>*</td>
+                <td>Indica ponteiro</td>
+            </tr>
+            <tr>
+                <td>&</td>
+                <td>Retorna endereço de memória</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="avaliacao">
+        <h3>Avaliação do Conteúdo</h3>
+
+        <form>
+
+            <label>Seu nome:</label>
+            <input type="text" name="nome">
+
+            <label>O conteúdo foi claro?</label><br>
+            <input type="radio" name="clareza" value="sim"> Sim
+            <input type="radio" name="clareza" value="nao"> Não
+            <br><br>
+
+            <label>Qual seu nível de entendimento?</label>
+            <select name="nivel">
+                <option>Baixo</option>
+                <option>Médio</option>
+                <option>Alto</option>
+            </select>
+
+            <label>Deixe um comentário:</label>
+            <textarea name="comentario" rows="5"></textarea>
+
+            <input type="submit" value="Enviar Avaliação">
+
+        </form>
+    </section>
+
+    <footer>
+        <p>Desenvolvido por João Gustavo - 2026</p>
+    </footer>
+
+</body>
+</html>
