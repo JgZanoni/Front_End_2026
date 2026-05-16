@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Bank</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: rgb(174, 224, 224);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            width: 420px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background-color: white;
+            color: #222;
+        }
+
+        .campo {
+            background-color: white;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            background-color: white;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background-color: white;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgb(72, 150, 150);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgb(72, 150, 150);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: rgb(52, 120, 120);
+        }
+
+        #resultado {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            background-color: #f5f5f5;
+            text-align: left;
+            line-height: 1.8;
+            color: #222;
+        }
+
+        #resultado strong {
+            background-color: #f5f5f5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Infinity Bank</h1>
+
+        <div class="campo">
+            <label for="bandeira">Bandeira do Cartão</label>
+
+            <select id="bandeira">
+
+                <option value="visa">Visa</option>
+                <option value="master">Master</option>
+                <option value="elo">Elo</option>
+
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="valor">Valor da Venda (R$)</label>
+
+            <input 
+                type="number" 
+                id="valor" 
+                step="0.01"
+                placeholder="Digite o valor da venda"
+            >
+        </div>
+
+        <div class="campo">
+            <label for="parcelas">Quantidade de Parcelas</label>
+
+            <input 
+                type="number" 
+                id="parcelas" 
+                min="1"
+                placeholder="Digite o número de parcelas"
+            >
+        </div>
+
+        <button id="calcular">
+            Simular Venda
+        </button>
+
+        <div id="resultado"></div>
+
+    </div>
+
+    <script>
+
+        const botao = document.getElementById("calcular");
+
+        botao.addEventListener("click", function () {
+
+            const bandeira = document.getElementById("bandeira").value;
+            const valor = Number(document.getElementById("valor").value);
+            const parcelas = Number(document.getElementById("parcelas").value);
+
+            const resultado = document.getElementById("resultado");
+
+            let taxaPercentual = 0;
+
+            switch (bandeira) {
+
+                case "visa":
+                    taxaPercentual = 0.02;
+                    break;
+
+                case "master":
+                    taxaPercentual = 0.0185;
+                    break;
+
+                case "elo":
+                    taxaPercentual = 0.03;
+                    break;
+
+                default:
+                    taxaPercentual = 0;
+
+            }
+
+            const taxaBandeira = valor * taxaPercentual;
+            const juros = valor * (0.015 * parcelas);
+            const taxaMensal = parcelas * 12.50;
+            const valorTotal = valor + taxaBandeira + juros + taxaMensal;
+            const valorParcela = valorTotal / parcelas;
+
+            resultado.innerHTML = `
+
+                <strong>Resumo da Venda:</strong><br><br>
+
+                Valor da Venda: R$ ${valor.toFixed(2)}<br>
+
+                Taxa da Bandeira: 
+                R$ ${taxaBandeira.toFixed(2)}<br>
+
+                Juros Totais: 
+                R$ ${juros.toFixed(2)}<br>
+
+                Taxa Mensal:
+                R$ ${taxaMensal.toFixed(2)}<br>
+
+                Valor Total:
+                R$ ${valorTotal.toFixed(2)}<br>
+
+                Valor de Cada Parcela:
+                ${parcelas}x de 
+                R$ ${valorParcela.toFixed(2)}
+
+            `;
+
+        });
+
+    </script>
+
+</body>
+</html>

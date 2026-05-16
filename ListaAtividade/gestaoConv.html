@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Bank - Lista VIP</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            background-color: rgb(174, 224, 224);
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 500px;
+            background-color: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            background-color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2rem;
+            color: #222;
+        }
+
+        .area-input {
+            display: flex;
+            gap: 10px;
+            background-color: white;
+            margin-bottom: 25px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        input:focus {
+            border-color: rgb(72, 150, 150);
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            color: white;
+        }
+
+        .btn-adicionar {
+            background-color: rgb(72, 150, 150);
+        }
+
+        .btn-adicionar:hover {
+            background-color: rgb(52, 120, 120);
+        }
+
+        ul {
+            list-style: none;
+            background-color: white;
+        }
+
+        li {
+            background-color: white;
+            padding: 15px 0;
+            border-bottom: 1px solid #ddd;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nome-convidado {
+            background-color: white;
+            color: #222;
+            font-size: 1rem;
+        }
+
+        .riscado {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 8px;
+            background-color: white;
+        }
+
+        .btn-concluir {
+            background-color: green;
+        }
+
+        .btn-editar {
+            background-color: orange;
+        }
+
+        .btn-excluir {
+            background-color: crimson;
+        }
+
+        .btn-concluir:hover {
+            background-color: darkgreen;
+        }
+
+        .btn-editar:hover {
+            background-color: darkorange;
+        }
+
+        .btn-excluir:hover {
+            background-color: darkred;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Convidados VIP</h1>
+
+        <div class="area-input">
+
+            <input 
+                type="text" 
+                id="nomeInput"
+                placeholder="Digite o nome do convidado"
+            >
+
+            <button class="btn-adicionar" id="adicionarBtn">
+                Adicionar
+            </button>
+
+        </div>
+
+        <ul id="listaConvidados"></ul>
+
+    </div>
+
+    <script>
+
+        const input = document.getElementById("nomeInput");
+        const botaoAdicionar = document.getElementById("adicionarBtn");
+        const lista = document.getElementById("listaConvidados");
+
+        let convidados = [];
+
+        botaoAdicionar.addEventListener("click", adicionarConvidado);
+
+        function adicionarConvidado() {
+
+            const nome = input.value.trim();
+
+            if (nome === "") {
+                alert("Digite um nome válido.");
+                return;
+            }
+
+            convidados.push(nome);
+
+            criarItemLista(nome);
+
+            input.value = "";
+            input.focus();
+
+        }
+
+        function criarItemLista(nome) {
+
+            const li = document.createElement("li");
+
+            const span = document.createElement("span");
+            span.textContent = nome;
+            span.classList.add("nome-convidado");
+
+            const areaBotoes = document.createElement("div");
+            areaBotoes.classList.add("botoes");
+
+            const btnConcluir = document.createElement("button");
+            btnConcluir.textContent = "Concluir";
+            btnConcluir.classList.add("btn-concluir");
+
+            btnConcluir.addEventListener("click", function () {
+
+                span.classList.toggle("riscado");
+
+            });
+
+            const btnEditar = document.createElement("button");
+            btnEditar.textContent = "Editar";
+            btnEditar.classList.add("btn-editar");
+
+            btnEditar.addEventListener("click", function () {
+
+                const novoNome = prompt(
+                    "Digite o novo nome:",
+                    span.textContent
+                );
+
+                if (novoNome !== null && novoNome.trim() !== "") {
+
+                    span.textContent = novoNome.trim();
+
+                }
+
+            });
+
+            const btnExcluir = document.createElement("button");
+            btnExcluir.textContent = "Excluir";
+            btnExcluir.classList.add("btn-excluir");
+
+            btnExcluir.addEventListener("click", function () {
+
+                li.remove();
+
+            });
+
+            areaBotoes.appendChild(btnConcluir);
+            areaBotoes.appendChild(btnEditar);
+            areaBotoes.appendChild(btnExcluir);
+
+            li.appendChild(span);
+            li.appendChild(areaBotoes);
+            lista.appendChild(li);
+
+        }
+
+    </script>
+
+</body>
+</html>

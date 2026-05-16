@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de CPF</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: rgb(174, 224, 224);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            background-color: white;
+            color: #222;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background-color: white;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgb(72, 150, 150);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: rgb(52, 120, 120);
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background-color: white;
+        }
+
+        .valido {
+            color: green;
+        }
+
+        .invalido {
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Validador de CPF</h1>
+
+        <input type="text" id="cpf" placeholder="Digite o CPF">
+
+        <button onclick="validarCPF()">
+            Validar
+        </button>
+
+        <p id="resultado"></p>
+
+    </div>
+
+    <script>
+
+        function validarCPF() {
+
+            let cpf = document.getElementById("cpf").value;
+
+            cpf = cpf.replace(/\D/g, "");
+
+            const resultado = document.getElementById("resultado");
+
+            if (cpf.length !== 11) {
+                resultado.innerHTML = "CPF Inválido!";
+                resultado.className = "invalido";
+                return;
+            }
+            if (/^(\d)\1+$/.test(cpf)) {
+                resultado.innerHTML = "CPF Inválido!";
+                resultado.className = "invalido";
+                return;
+            }
+
+            let soma = 0;
+
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(cpf[i]) * (10 - i);
+            }
+
+            let digito1 = (soma * 10) % 11;
+
+            if (digito1 === 10) {
+                digito1 = 0;
+            }
+
+            soma = 0;
+
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf[i]) * (11 - i);
+            }
+
+            let digito2 = (soma * 10) % 11;
+
+            if (digito2 === 10) {
+                digito2 = 0;
+            }
+
+            if (
+                digito1 == cpf[9] &&
+                digito2 == cpf[10]
+            ) {
+                resultado.innerHTML = "CPF Válido!";
+                resultado.className = "valido";
+            } else {
+                resultado.innerHTML = "CPF Inválido!";
+                resultado.className = "invalido";
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>

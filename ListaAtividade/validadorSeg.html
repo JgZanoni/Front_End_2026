@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Card Guard</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: rgb(174, 224, 224);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 480px;
+            background-color: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            background-color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            color: #222;
+        }
+
+        .campo {
+            background-color: white;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            background-color: white;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        input:focus {
+            border-color: rgb(72, 150, 150);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgb(72, 150, 150);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: rgb(52, 120, 120);
+        }
+
+        #resultado {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f5f5f5;
+            line-height: 1.9;
+            color: #222;
+        }
+
+        #resultado strong,
+        #resultado span {
+            background-color: transparent;
+        }
+
+        .valido {
+            color: green;
+        }
+
+        .invalido {
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Infinity Card Guard</h1>
+
+        <div class="campo">
+
+            <label for="cartao">
+                Número do Cartão
+            </label>
+
+            <input 
+                type="text"
+                id="cartao"
+                maxlength="19"
+                placeholder="Digite o número do cartão"
+            >
+
+        </div>
+
+        <button id="analisar">
+            Analisar Cartão
+        </button>
+
+        <div id="resultado"></div>
+
+    </div>
+
+    <script>
+
+        const botao = document.getElementById("analisar");
+
+        botao.addEventListener("click", function () {
+
+            let numero = document
+                .getElementById("cartao")
+                .value;
+
+            const resultado = document
+                .getElementById("resultado");
+
+            numero = numero.replace(/\D/g, "");
+
+            if (numero.length < 13 || numero.length > 16) {
+
+                resultado.innerHTML = `
+                    <span class="invalido">
+                        Número de cartão inválido.
+                    </span>
+                `;
+
+                return;
+
+            }
+
+            let soma = 0;
+            let dobrar = false;
+
+            for (let i = numero.length - 1; i >= 0; i--) {
+
+                let digito = parseInt(numero[i]);
+
+                if (dobrar) {
+
+                    digito *= 2;
+
+                    if (digito > 9) {
+                        digito -= 9;
+                    }
+
+                }
+
+                soma += digito;
+
+                dobrar = !dobrar;
+
+            }
+
+            const valido = soma % 10 === 0;
+
+            let bandeira = "Desconhecida";
+
+            if (numero.startsWith("4")) {
+
+                bandeira = "Visa";
+
+            }
+
+            else if (
+                numero.startsWith("5")
+            ) {
+
+                bandeira = "Mastercard";
+
+            }
+
+            else if (
+                numero.startsWith("34") ||
+                numero.startsWith("37")
+            ) {
+
+                bandeira = "American Express";
+
+            }
+
+            else if (
+                numero.startsWith("6")
+            ) {
+
+                bandeira = "Discover";
+
+            }
+
+            let setor = "";
+
+            switch (numero[0]) {
+
+                case "1":
+                    setor = "Companhias Aéreas";
+                    break;
+
+                case "2":
+                    setor = "Financeiro e Bancário";
+                    break;
+
+                case "3":
+                    setor = "Viagens e Entretenimento";
+                    break;
+
+                case "4":
+                case "5":
+                    setor = "Serviços Financeiros";
+                    break;
+
+                case "6":
+                    setor = "Comércio e Bancos";
+                    break;
+
+                default:
+                    setor = "Não identificado";
+
+            }
+            let banco = "Banco Não Identificado";
+
+            const prefixo = numero.substring(0, 4);
+
+            switch (prefixo) {
+
+                case "4111":
+                    banco = "Infinity Bank Visa";
+                    break;
+
+                case "5500":
+                    banco = "Infinity Master";
+                    break;
+
+                case "3400":
+                    banco = "Infinity American Express";
+                    break;
+
+                default:
+                    banco = "Banco Genérico";
+            }
+
+            resultado.innerHTML = `
+
+                <strong>Status:</strong>
+                <span class="${
+                    valido ? "valido" : "invalido"
+                }">
+                    ${
+                        valido
+                        ? "Cartão Válido"
+                        : "Cartão Inválido"
+                    }
+                </span>
+
+                <br>
+
+                <strong>Bandeira:</strong>
+                ${bandeira}
+
+                <br>
+
+                <strong>Categoria de Setor:</strong>
+                ${setor}
+
+                <br>
+
+                <strong>Banco Emissor:</strong>
+                ${banco}
+            `;
+        });
+    </script>
+
+</body>
+</html>
