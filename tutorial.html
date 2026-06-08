@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clone um Web Game de Palavras com React</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0e0f11;
+    --surface:  #161719;
+    --surface2: #1d1f22;
+    --border:   #2a2c30;
+    --text:     #e8e6e0;
+    --muted:    #787570;
+    --accent:   #b6f542;
+    --accent2:  #42d9c8;
+    --warn:     #f5a623;
+    --danger:   #f55742;
+    --mono:     'DM Mono', monospace;
+    --serif:    'Fraunces', serif;
+    --sans:     'Plus Jakarta Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(14,15,17,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 2rem;
+    height: 56px;
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
+  .nav-links a {
+    font-size: 13px; color: var(--muted);
+    text-decoration: none; transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    max-width: 860px; margin: 0 auto;
+    padding: 5rem 2rem 4rem;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 2rem; align-items: start;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .12em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: inline-block;
+    width: 20px; height: 1px; background: var(--accent);
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 300; line-height: 1.15;
+    color: var(--text); margin-bottom: 1.25rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-lead {
+    font-size: 16px; color: var(--muted); max-width: 480px; line-height: 1.75;
+  }
+  .hero-badges {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.75rem;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 11px;
+    padding: 4px 10px; border-radius: 4px;
+    border: 1px solid var(--border); color: var(--muted);
+  }
+  .hero-tiles {
+    display: grid; grid-template-columns: repeat(5,1fr); gap: 5px;
+    opacity: .7;
+  }
+  .tile {
+    width: 46px; height: 46px; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 17px; font-weight: 500;
+    border: 2px solid var(--border);
+    animation: pop .5s ease both;
+  }
+  .tile.c { background: #538d4e; border-color: #538d4e; color: #fff; }
+  .tile.p { background: #b59f3b; border-color: #b59f3b; color: #fff; }
+  .tile.a { background: var(--surface2); color: var(--muted); }
+  @keyframes pop {
+    0%   { transform: scale(.5); opacity: 0; }
+    80%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .tile:nth-child(1){animation-delay:.05s}
+  .tile:nth-child(2){animation-delay:.1s}
+  .tile:nth-child(3){animation-delay:.15s}
+  .tile:nth-child(4){animation-delay:.2s}
+  .tile:nth-child(5){animation-delay:.25s}
+  .tile:nth-child(6){animation-delay:.3s}
+  .tile:nth-child(7){animation-delay:.35s}
+  .tile:nth-child(8){animation-delay:.4s}
+  .tile:nth-child(9){animation-delay:.45s}
+  .tile:nth-child(10){animation-delay:.5s}
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 2rem; }
+
+  /* GAME SELECTOR */
+  .section { max-width: 860px; margin: 0 auto; padding: 3rem 2rem; }
+  .section-label {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: .1em;
+    text-transform: uppercase; margin-bottom: 1.25rem;
+  }
+  .game-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+    margin-bottom: 3rem;
+  }
+  .game-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem;
+    cursor: pointer; transition: border-color .2s, background .2s;
+    text-align: left;
+  }
+  .game-card:hover { background: var(--surface2); border-color: #444; }
+  .game-card.active { border-color: var(--accent); background: #141a0a; }
+  .game-icon { font-size: 26px; margin-bottom: .6rem; }
+  .game-name {
+    font-size: 15px; font-weight: 600;
+    color: var(--text); margin-bottom: .3rem;
+  }
+  .game-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .diff {
+    display: inline-block; font-family: var(--mono);
+    font-size: 10px; padding: 2px 8px; border-radius: 3px;
+    margin-top: .6rem;
+  }
+  .diff-easy  { background: #0e1f0d; color: #7ec87a; border: 1px solid #2c4a28; }
+  .diff-med   { background: #1f1600; color: #f5a623; border: 1px solid #4a3800; }
+  .diff-hard  { background: #1f0700; color: #f55742; border: 1px solid #4a1800; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; margin-bottom: 8px;
+    transition: border-color .2s;
+  }
+  .step:hover { border-color: #3a3c40; }
+  .step-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 1rem 1.25rem; cursor: pointer;
+    background: var(--surface); transition: background .15s;
+    list-style: none;
+  }
+  .step-header:hover { background: var(--surface2); }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .step-title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+  .step-toggle {
+    font-family: var(--mono); font-size: 14px;
+    color: var(--muted); transition: transform .25s;
+  }
+  details[open] .step-toggle { transform: rotate(45deg); }
+  .step-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .step-body p {
+    font-size: 13.5px; color: #a8a59e;
+    line-height: 1.75; margin-bottom: 1rem;
+  }
+  .step-body ul { margin: 0 0 1rem 1.2rem; }
+  .step-body li {
+    font-size: 13px; color: #a8a59e;
+    line-height: 1.8; margin-bottom: .1rem;
+  }
+  .step-body strong { color: var(--text); font-weight: 500; }
+  .step-body a { color: var(--accent2); text-decoration: none; }
+  .step-body a:hover { text-decoration: underline; }
+
+  /* CODE BLOCKS */
+  pre {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem 1.25rem;
+    overflow-x: auto; margin: .75rem 0;
+    font-family: var(--mono); font-size: 12.5px;
+    line-height: 1.75; color: var(--text);
+    position: relative;
+  }
+  .kw  { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .fn  { color: #82aaff; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .num { color: var(--warn); }
+
+  /* TIP */
+  .tip {
+    background: #0a1a13; border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: .8rem 1rem;
+    margin: .75rem 0;
+  }
+  .tip p { color: #8ecf6e !important; font-size: 12.5px !important; margin: 0 !important; }
+  .tip strong { color: var(--accent) !important; }
+
+  .warn-tip {
+    background: #1a1200; border-left: 3px solid var(--warn);
+    border-radius: 0 8px 8px 0; padding: .8rem 1rem;
+    margin: .75rem 0;
+  }
+  .warn-tip p { color: #c8962e !important; font-size: 12.5px !important; margin: 0 !important; }
+  .warn-tip strong { color: var(--warn) !important; }
+
+  /* CONCEPTS PILLS */
+  .concepts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+  .pill {
+    font-family: var(--mono); font-size: 11px;
+    padding: 3px 9px; border-radius: 4px;
+    background: var(--surface2); color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* HIDDEN */
+  .game-content { display: none; }
+  .game-content.active { display: block; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem; text-align: center;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+  footer a { color: var(--accent2); text-decoration: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-tiles { display: none; }
+    .game-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">react + games</a>
+  <div class="nav-links">
+    <a href="#termo">Termo</a>
+    <a href="#contexto">Contexto</a>
+    <a href="#conexo">Conexo</a>
+    <a href="https://react.dev/learn/tutorial-tic-tac-toe" target="_blank">Docs ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <p class="hero-eyebrow">tutorial react</p>
+    <h1>Clone um <em>web game</em><br>de palavras</h1>
+    <p class="hero-lead">
+      Aprenda React construindo jogos reais — Termo, Contexto e Conexo.
+      Seguindo a estrutura do tutorial oficial do React.
+    </p>
+    <div class="hero-badges">
+      <span class="badge">useState</span>
+      <span class="badge">useEffect</span>
+      <span class="badge">useReducer</span>
+      <span class="badge">custom hooks</span>
+      <span class="badge">CSS modules</span>
+    </div>
+  </div>
+  <div class="hero-tiles">
+    <div class="tile c">T</div>
+    <div class="tile p">E</div>
+    <div class="tile p">R</div>
+    <div class="tile a">M</div>
+    <div class="tile c">O</div>
+    <div class="tile a">R</div>
+    <div class="tile c">E</div>
+    <div class="tile a">A</div>
+    <div class="tile p">C</div>
+    <div class="tile c">T</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GAME SELECTOR + CONTENT -->
+<section class="section">
+  <p class="section-label">escolha o jogo</p>
+
+  <div class="game-grid">
+    <button class="game-card active" onclick="selectGame('termo')">
+      <div class="game-icon">🟩</div>
+      <div class="game-name">Termo</div>
+      <div class="game-desc">Adivinhe a palavra em 6 tentativas. Inspirado no Wordle.</div>
+      <span class="diff diff-easy">iniciante</span>
+    </button>
+    <button class="game-card" onclick="selectGame('contexto')">
+      <div class="game-icon">📍</div>
+      <div class="game-name">Contexto</div>
+      <div class="game-desc">Encontre a palavra pela similaridade semântica.</div>
+      <span class="diff diff-med">intermediário</span>
+    </button>
+    <button class="game-card" onclick="selectGame('conexo')">
+      <div class="game-icon">🔗</div>
+      <div class="game-name">Conexo / Dialed</div>
+      <div class="game-desc">Agrupe 16 palavras em 4 categorias temáticas.</div>
+      <span class="diff diff-hard">avançado</span>
+    </button>
+  </div>
+
+  <!-- TERMO -->
+  <div id="content-termo" class="game-content active">
+    <div class="concepts">
+      <span class="pill">useState</span>
+      <span class="pill">props</span>
+      <span class="pill">conditional rendering</span>
+      <span class="pill">Array.map</span>
+      <span class="pill">useEffect</span>
+      <span class="pill">CSS modules</span>
+    </div>
+    <div class="steps">
+
+      <details class="step" open>
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e1f0d;color:#7ec87a">1</div>
+          <span class="step-title">Entendendo o problema — decomponha em componentes</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>Antes de codificar, analise o <a href="https://www.term.ooo" target="_blank">term.ooo</a> como um engenheiro React. Quebre a tela em componentes reutilizáveis:</p>
+          <ul>
+            <li><strong>Grid</strong> — 6 linhas × 5 letras (o tabuleiro completo)</li>
+            <li><strong>Row</strong> — uma tentativa de 5 letras</li>
+            <li><strong>Tile</strong> — cada quadradinho individual com cor de feedback</li>
+            <li><strong>Keyboard</strong> — teclado virtual com estado de cores</li>
+            <li><strong>Modal</strong> — resultado final (vitória ou derrota)</li>
+          </ul>
+          <div class="tip"><p><strong>Regra React:</strong> se algo aparece mais de uma vez, é um componente. O <code>Tile</code> aparece 30 vezes — definitivamente um componente.</p></div>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e0e1f;color:#9b96f0">2</div>
+          <span class="step-title">Setup com Vite e estrutura de pastas</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>Crie o projeto com Vite — mais rápido que Create React App:</p>
+          <pre><code><span class="cm"># cria e inicia o projeto</span>
+npm create vite@latest meu-termo -- --template react
+cd meu-termo
+npm install
+npm run dev</code></pre>
+          <p>Estrutura de pastas recomendada:</p>
+          <pre><code>src/
+  components/
+    Grid.jsx      <span class="cm">← o tabuleiro inteiro</span>
+    Row.jsx       <span class="cm">← uma linha de 5 letras</span>
+    Tile.jsx      <span class="cm">← cada quadradinho</span>
+    Keyboard.jsx  <span class="cm">← teclado virtual</span>
+    Modal.jsx     <span class="cm">← resultado final</span>
+  hooks/
+    useGame.js    <span class="cm">← toda lógica do jogo</span>
+  utils/
+    wordList.js   <span class="cm">← lista de palavras PT-BR</span>
+    checker.js    <span class="cm">← lógica de cores</span>
+  App.jsx</code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a1200;color:#f5a623">3</div>
+          <span class="step-title">Estado central com useState no custom hook</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>Todo o estado do jogo fica em <code>useGame.js</code>. O princípio é o mesmo do tutorial Tic-Tac-Toe: <em>estado sobe para o ancestral comum</em>.</p>
+          <pre><code><span class="kw">import</span> { useState, useCallback } <span class="kw">from</span> <span class="str">'react'</span>
+<span class="kw">import</span> { getRandomWord, isValidWord } <span class="kw">from</span> <span class="str">'../utils/wordList'</span>
+
+<span class="kw">export function</span> <span class="fn">useGame</span>() {
+  <span class="kw">const</span> [answer]  = useState(<span class="fn">getRandomWord</span>())
+  <span class="kw">const</span> [guesses, setGuesses] = useState([]) <span class="cm">// array de strings</span>
+  <span class="kw">const</span> [current, setCurrent] = useState(<span class="str">''</span>)  <span class="cm">// tentativa atual</span>
+  <span class="kw">const</span> [error,   setError]   = useState(<span class="kw">null</span>)
+  <span class="kw">const</span> [gameOver,setGameOver]= useState(<span class="kw">false</span>)
+
+  <span class="kw">const</span> <span class="fn">submitGuess</span> = <span class="fn">useCallback</span>(() => {
+    <span class="kw">if</span> (current.length !== <span class="num">5</span>) {
+      setError(<span class="str">'Palavra precisa ter 5 letras'</span>); <span class="kw">return</span>
+    }
+    <span class="kw">if</span> (!<span class="fn">isValidWord</span>(current)) {
+      setError(<span class="str">'Palavra não encontrada'</span>); <span class="kw">return</span>
+    }
+    <span class="kw">const</span> next = [...guesses, current]
+    setGuesses(next)
+    setCurrent(<span class="str">''</span>)
+    setError(<span class="kw">null</span>)
+    <span class="kw">if</span> (current === answer || next.length === <span class="num">6</span>)
+      setGameOver(<span class="kw">true</span>)
+  }, [current, answer, guesses])
+
+  <span class="kw">return</span> { guesses, current, setCurrent,
+            submitGuess, answer, gameOver, error }
+}</code></pre>
+          <div class="tip"><p><strong>Por que custom hook?</strong> Separa lógica de apresentação. O <code>App.jsx</code> fica limpo — só compõe componentes.</p></div>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a0700;color:#f55742">4</div>
+          <span class="step-title">Componente Tile — feedback de cores por props</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O <code>Tile</code> é puro: recebe <code>letter</code> e <code>status</code> como props, não gerencia estado próprio.</p>
+          <pre><code><span class="cm">// utils/checker.js</span>
+<span class="kw">export function</span> <span class="fn">getTileStatus</span>(letter, index, answer) {
+  <span class="kw">if</span> (answer[index] === letter) <span class="kw">return</span> <span class="str">'correct'</span>   <span class="cm">// 🟩</span>
+  <span class="kw">if</span> (answer.includes(letter)) <span class="kw">return</span> <span class="str">'present'</span>   <span class="cm">// 🟨</span>
+  <span class="kw">return</span> <span class="str">'absent'</span>                                  <span class="cm">// ⬛</span>
+}
+
+<span class="cm">// components/Tile.jsx</span>
+<span class="kw">export function</span> <span class="fn">Tile</span>({ letter, status }) {
+  <span class="kw">return</span> (
+    &lt;div className={`tile tile--${status || <span class="str">'empty'</span>}`}&gt;
+      {letter}
+    &lt;/div&gt;
+  )
+}</code></pre>
+          <pre><code><span class="cm">/* CSS */</span>
+.tile {
+  width: 58px; height: 58px;
+  border: 2px solid #3a3a3c;
+  display: grid; place-items: center;
+  font-size: 2rem; font-weight: 700;
+  text-transform: uppercase;
+  transition: background .3s, border-color .3s;
+}
+.tile--correct { background:#538d4e; border-color:#538d4e; color:#fff }
+.tile--present { background:#b59f3b; border-color:#b59f3b; color:#fff }
+.tile--absent  { background:#3a3a3c; border-color:#3a3a3c; color:#fff }</code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e1f0d;color:#7ec87a">5</div>
+          <span class="step-title">Captura de teclado físico com useEffect</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>Use <code>useEffect</code> para adicionar e remover o event listener corretamente:</p>
+          <pre><code><span class="kw">useEffect</span>(() => {
+  <span class="kw">const</span> <span class="fn">handler</span> = (e) => {
+    <span class="kw">if</span> (gameOver) <span class="kw">return</span>
+
+    <span class="kw">if</span> (e.key === <span class="str">'Enter'</span>)     { <span class="fn">submitGuess</span>(); <span class="kw">return</span> }
+    <span class="kw">if</span> (e.key === <span class="str">'Backspace'</span>) {
+      <span class="fn">setCurrent</span>(c => c.slice(<span class="num">0</span>, -<span class="num">1</span>)); <span class="kw">return</span>
+    }
+    <span class="cm">// aceita letras PT-BR</span>
+    <span class="kw">if</span> (/^[a-záéíóúãõç]$/i.test(e.key) && current.length < <span class="num">5</span>) {
+      <span class="fn">setCurrent</span>(c => c + e.key.toUpperCase())
+    }
+  }
+
+  window.addEventListener(<span class="str">'keydown'</span>, handler)
+  <span class="kw">return</span> () => window.removeEventListener(<span class="str">'keydown'</span>, handler)
+  <span class="cm">// dependências: sempre inclua o que o handler usa</span>
+}, [current, gameOver, submitGuess])</code></pre>
+          <div class="warn-tip"><p><strong>Erro clássico:</strong> esquecer <code>current</code> ou <code>submitGuess</code> no array de dependências causa bugs de closure — o handler "vê" o valor antigo.</p></div>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e0e1f;color:#9b96f0">6</div>
+          <span class="step-title">Conectando tudo no App.jsx</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O <code>App.jsx</code> é só composição — nenhuma lógica, só props:</p>
+          <pre><code><span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> {
+    guesses, current, answer,
+    setCurrent, submitGuess, gameOver, error
+  } = <span class="fn">useGame</span>()
+
+  <span class="kw">return</span> (
+    &lt;main className=<span class="str">"app"</span>&gt;
+      &lt;h1&gt;TERMO&lt;/h1&gt;
+
+      {error && &lt;p className=<span class="str">"error"</span>&gt;{error}&lt;/p&gt;}
+
+      &lt;Grid
+        guesses={guesses}
+        current={current}
+        answer={answer}
+      /&gt;
+
+      &lt;Keyboard
+        onKey={(k) => setCurrent(c => c + k)}
+        onEnter={submitGuess}
+        onDelete={() => setCurrent(c => c.slice(<span class="num">0</span>,-<span class="num">1</span>))}
+        guesses={guesses}
+        answer={answer}
+      /&gt;
+
+      {gameOver && (
+        &lt;Modal
+          won={guesses.at(-<span class="num">1</span>) === answer}
+          answer={answer}
+          attempts={guesses.length}
+        /&gt;
+      )}
+    &lt;/main&gt;
+  )
+}</code></pre>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- CONTEXTO -->
+  <div id="content-contexto" class="game-content">
+    <div class="concepts">
+      <span class="pill">fetch / API</span>
+      <span class="pill">useEffect</span>
+      <span class="pill">async/await</span>
+      <span class="pill">Array.sort</span>
+      <span class="pill">localStorage</span>
+    </div>
+    <div class="steps">
+
+      <details class="step" open>
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a1200;color:#f5a623">1</div>
+          <span class="step-title">Entendendo o problema — jogo sem limite de tentativas</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O <a href="https://contexto.me" target="_blank">Contexto</a> usa similaridade semântica (word embeddings). O jogador digita qualquer palavra e recebe um número de distância — quanto menor, mais próxima da resposta.</p>
+          <ul>
+            <li><strong>Sem limite</strong> de tentativas — o jogador pode tentar infinitamente</li>
+            <li><strong>Lista ordenada</strong> por proximidade — as melhores tentativas ficam no topo</li>
+            <li><strong>Feedback visual</strong> — cor "quente/frio" baseada no ranking</li>
+          </ul>
+          <div class="tip"><p><strong>Backend:</strong> use a API pública <code>api.contexto.me</code> ou simule com um JSON pré-computado de similaridades.</p></div>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e1f0d;color:#7ec87a">2</div>
+          <span class="step-title">Chamada de API com async/await</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>A lógica central é buscar a distância semântica ao submeter:</p>
+          <pre><code><span class="kw">const</span> [guesses,  setGuesses]  = <span class="fn">useState</span>([])
+<span class="kw">const</span> [input,    setInput]    = <span class="fn">useState</span>(<span class="str">''</span>)
+<span class="kw">const</span> [loading,  setLoading]  = <span class="fn">useState</span>(<span class="kw">false</span>)
+<span class="kw">const</span> [won,      setWon]      = <span class="fn">useState</span>(<span class="kw">false</span>)
+
+<span class="kw">async function</span> <span class="fn">handleGuess</span>() {
+  <span class="kw">if</span> (!input.trim()) <span class="kw">return</span>
+  <span class="fn">setLoading</span>(<span class="kw">true</span>)
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res  = <span class="kw">await</span> fetch(
+      `https://api.contexto.me/machado/pt/tip/${gameId}/${input}`
+    )
+    <span class="kw">const</span> data = <span class="kw">await</span> res.json()
+    <span class="cm">// data = { word, distance, lemma }</span>
+
+    <span class="fn">setGuesses</span>(g =>
+      [...g, data].sort((a, b) => a.distance - b.distance)
+    )
+    <span class="kw">if</span> (data.distance === <span class="num">1</span>) <span class="fn">setWon</span>(<span class="kw">true</span>)
+    <span class="fn">setInput</span>(<span class="str">''</span>)
+  } <span class="kw">catch</span> (err) {
+    console.error(err)
+  } <span class="kw">finally</span> {
+    <span class="fn">setLoading</span>(<span class="kw">false</span>)
+  }
+}</code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a0700;color:#f55742">3</div>
+          <span class="step-title">Indicador de temperatura (heatmap visual)</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>A cor de cada tentativa é derivada do ranking — função pura, sem estado:</p>
+          <pre><code><span class="kw">function</span> <span class="fn">getHeat</span>(distance) {
+  <span class="kw">if</span> (distance <=  <span class="num">100</span>) <span class="kw">return</span> { color: <span class="str">'#e63946'</span>, label: <span class="str">'🔥 Fervendo'</span> }
+  <span class="kw">if</span> (distance <=  <span class="num">500</span>) <span class="kw">return</span> { color: <span class="str">'#f4a261'</span>, label: <span class="str">'Quente'</span>     }
+  <span class="kw">if</span> (distance <= <span class="num">2000</span>) <span class="kw">return</span> { color: <span class="str">'#457b9d'</span>, label: <span class="str">'Morno'</span>      }
+  <span class="kw">return</span>                 { color: <span class="str">'#adb5bd'</span>, label: <span class="str">'❄️ Frio'</span>    }
+}
+
+<span class="kw">function</span> <span class="fn">GuessItem</span>({ word, distance }) {
+  <span class="kw">const</span> { color, label } = <span class="fn">getHeat</span>(distance)
+  <span class="kw">return</span> (
+    &lt;div style={{ borderLeft: `4px solid ${color}`, padding: <span class="str">'8px 12px'</span> }}&gt;
+      &lt;span style={{ color, fontWeight: <span class="str">'bold'</span> }}&gt;#{distance}&lt;/span&gt;
+      &lt;strong&gt; {word}&lt;/strong&gt;
+      &lt;small style={{ color, marginLeft: <span class="str">'8px'</span> }}&gt;{label}&lt;/small&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e0e1f;color:#9b96f0">4</div>
+          <span class="step-title">Persistência com localStorage</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>Salve o progresso para o jogador poder voltar depois do mesmo ponto:</p>
+          <pre><code><span class="cm">// carregar ao montar</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> saved = localStorage.getItem(`contexto-${gameId}`)
+  <span class="kw">if</span> (saved) <span class="fn">setGuesses</span>(JSON.parse(saved))
+}, [gameId])
+
+<span class="cm">// salvar ao mudar</span>
+<span class="fn">useEffect</span>(() => {
+  localStorage.setItem(
+    `contexto-${gameId}`,
+    JSON.stringify(guesses)
+  )
+}, [guesses, gameId])</code></pre>
+          <div class="tip"><p><strong>Padrão React:</strong> dois <code>useEffect</code> separados — um para carregar, um para salvar. Mais legível que um único efeito com condição.</p></div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- CONEXO -->
+  <div id="content-conexo" class="game-content">
+    <div class="concepts">
+      <span class="pill">useReducer</span>
+      <span class="pill">state machine</span>
+      <span class="pill">CSS Grid</span>
+      <span class="pill">animações</span>
+      <span class="pill">shuffle</span>
+    </div>
+    <div class="steps">
+
+      <details class="step" open>
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a0700;color:#f55742">1</div>
+          <span class="step-title">Entendendo o problema — estado complexo</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O Conexo/Connections tem 16 palavras que formam 4 grupos secretos. O jogador seleciona 4 por vez e submete a hipótese.</p>
+          <ul>
+            <li><strong>4 grupos</strong> com dificuldade crescente (🟨🟩🟦🟪)</li>
+            <li><strong>4 erros permitidos</strong> — após isso, game over</li>
+            <li><strong>Animações</strong> — shake ao errar, flip ao acertar</li>
+            <li><strong>Estado interdependente</strong> — ideal para <code>useReducer</code></li>
+          </ul>
+          <div class="tip"><p><strong>Regra React:</strong> quando múltiplos estados mudam juntos em resposta a uma ação, use <code>useReducer</code> ao invés de vários <code>useState</code>.</p></div>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e1f0d;color:#7ec87a">2</div>
+          <span class="step-title">useReducer — centralizando toda a lógica</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O reducer define todas as transições de estado possíveis do jogo:</p>
+          <pre><code><span class="kw">const</span> initialState = {
+  words:    <span class="fn">shuffle</span>(allWords),  <span class="cm">// 16 palavras embaralhadas</span>
+  selected: [],                  <span class="cm">// máximo 4 selecionadas</span>
+  solved:   [],                  <span class="cm">// IDs dos grupos resolvidos</span>
+  mistakes: <span class="num">0</span>,                  <span class="cm">// contador de erros</span>
+  status:   <span class="str">'playing'</span>,          <span class="cm">// 'playing' | 'won' | 'lost'</span>
+  shaking:  <span class="kw">false</span>               <span class="cm">// animação de erro</span>
+}
+
+<span class="kw">function</span> <span class="fn">reducer</span>(state, action) {
+  <span class="kw">switch</span> (action.type) {
+    <span class="kw">case</span> <span class="str">'TOGGLE'</span>:
+      <span class="kw">return</span> <span class="fn">handleToggle</span>(state, action.word)
+    <span class="kw">case</span> <span class="str">'SUBMIT'</span>:
+      <span class="kw">return</span> <span class="fn">handleSubmit</span>(state)
+    <span class="kw">case</span> <span class="str">'SHUFFLE'</span>:
+      <span class="kw">return</span> {...state, words: <span class="fn">shuffle</span>([...state.words])}
+    <span class="kw">case</span> <span class="str">'STOP_SHAKE'</span>:
+      <span class="kw">return</span> {...state, shaking: <span class="kw">false</span>}
+    <span class="kw">default</span>:
+      <span class="kw">return</span> state
+  }
+}
+
+<span class="kw">const</span> [state, dispatch] = <span class="fn">useReducer</span>(reducer, initialState)
+<span class="cm">// uso: dispatch({ type: 'TOGGLE', word: 'BANANA' })</span></code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#0e0e1f;color:#9b96f0">3</div>
+          <span class="step-title">Grid selecionável com feedback visual</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>O grid usa CSS Grid 4×4 com highlight ao selecionar:</p>
+          <pre><code><span class="kw">function</span> <span class="fn">WordGrid</span>({ words, selected, onToggle, shaking }) {
+  <span class="kw">return</span> (
+    &lt;div style={{
+      display: <span class="str">'grid'</span>,
+      gridTemplateColumns: <span class="str">'repeat(4, 1fr)'</span>,
+      gap: <span class="str">'8px'</span>
+    }}&gt;
+      {words.map(word => {
+        <span class="kw">const</span> isSelected = selected.includes(word.text)
+        <span class="kw">return</span> (
+          &lt;button
+            key={word.text}
+            onClick={() => onToggle(word.text)}
+            className={`word-btn ${isSelected ? <span class="str">'selected'</span> : <span class="str">''</span>}
+                        ${shaking && isSelected ? <span class="str">'shake'</span> : <span class="str">''</span>}`}
+          &gt;
+            {word.text}
+          &lt;/button&gt;
+        )
+      })}
+    &lt;/div&gt;
+  )
+}</code></pre>
+          <pre><code><span class="cm">/* Animação de erro */</span>
+@keyframes shake {
+  0%, 100% { transform: translateX(0) }
+  20%       { transform: translateX(-6px) }
+  40%       { transform: translateX(6px) }
+  60%       { transform: translateX(-4px) }
+  80%       { transform: translateX(4px) }
+}
+.shake { animation: shake .5s ease; }</code></pre>
+        </div>
+      </details>
+
+      <details class="step">
+        <summary class="step-header">
+          <div class="step-num" style="background:#1a1200;color:#f5a623">4</div>
+          <span class="step-title">Lógica de submissão no reducer</span>
+          <span class="step-toggle">+</span>
+        </summary>
+        <div class="step-body">
+          <p>A função <code>handleSubmit</code> dentro do reducer verifica o grupo e atualiza tudo atomicamente:</p>
+          <pre><code><span class="kw">function</span> <span class="fn">handleSubmit</span>(state) {
+  <span class="kw">const</span> ids = state.selected.map(w => w.groupId)
+  <span class="kw">const</span> allSame = ids.every(id => id === ids[<span class="num">0</span>])
+
+  <span class="kw">if</span> (allSame) {
+    <span class="cm">// acertou o grupo!</span>
+    <span class="kw">const</span> solved = [...state.solved, ids[<span class="num">0</span>]]
+    <span class="kw">return</span> {
+      ...state,
+      selected: [],
+      solved,
+      words: state.words.filter(w => w.groupId !== ids[<span class="num">0</span>]),
+      status: solved.length === <span class="num">4</span> ? <span class="str">'won'</span> : <span class="str">'playing'</span>
+    }
+  }
+
+  <span class="cm">// errou</span>
+  <span class="kw">const</span> mistakes = state.mistakes + <span class="num">1</span>
+  <span class="kw">return</span> {
+    ...state,
+    selected: [],
+    mistakes,
+    shaking: <span class="kw">true</span>,
+    status: mistakes >= <span class="num">4</span> ? <span class="str">'lost'</span> : <span class="str">'playing'</span>
+  }
+}</code></pre>
+          <div class="tip"><p><strong>Boa prática:</strong> após o dispatch de erro, use <code>setTimeout(() =&gt; dispatch({type:'STOP_SHAKE'}), 600)</code> no componente para parar a animação.</p></div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  baseado no tutorial <a href="https://react.dev/learn/tutorial-tic-tac-toe" target="_blank">Tic-Tac-Toe do React.dev</a>
+  &nbsp;·&nbsp; jogue: <a href="https://www.term.ooo" target="_blank">Termo</a>
+  &nbsp;·&nbsp; <a href="https://contexto.me" target="_blank">Contexto</a>
+</footer>
+
+<script>
+  function selectGame(game) {
+    document.querySelectorAll('.game-card').forEach(function(c, i) {
+      var games = ['termo','contexto','conexo'];
+      c.classList.toggle('active', games[i] === game);
+    });
+    document.querySelectorAll('.game-content').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    document.getElementById('content-' + game).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
